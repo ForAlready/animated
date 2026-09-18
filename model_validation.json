@@ -1,0 +1,16 @@
+{
+  "models": 1,
+  "valid": 1,
+  "invalid": 0,
+  "files": [
+    {
+      "file": "animated\\Ria_Suit13_Playful.glb",
+      "bytes": 86603832,
+      "valid": true,
+      "vertices": 43266,
+      "triangles": 63293,
+      "skins": 9,
+      "sha256": "8b94f45e2de79e49753770a5662eba7d62ecdd1e8e4b89ca99d4de2c4b80eeaf"
+    }
+  ]
+}

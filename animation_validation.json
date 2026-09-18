@@ -1,0 +1,7 @@
+{
+  "duration_seconds": 12,
+  "tracks": 55,
+  "finite_values": true,
+  "loop_endpoints_match": true,
+  "unit_quaternions": true
+}
