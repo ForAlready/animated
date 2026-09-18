@@ -1,0 +1,169 @@
+{
+  "outfits": [
+    {
+      "id": "Suit01",
+      "url": "Ria_Suit01_Playful.glb",
+      "label": "Suit01",
+      "note": "已找到本组模型与遮挡图",
+      "parts": [
+        "SK_Role1_Body",
+        "SK_Role1_Head",
+        "SK_Role1_Hair01",
+        "SK_Role1_Suit01_Pants",
+        "SK_Role1_Suit01_Shoes",
+        "SK_Role1_Suit01_Tshirt"
+      ],
+      "collision": false
+    },
+    {
+      "id": "Suit01A",
+      "url": "Ria_Suit01A_Playful.glb",
+      "label": "Suit01A",
+      "note": "已找到本组模型与遮挡图",
+      "parts": [
+        "SK_Role1_Body",
+        "SK_Role1_Head",
+        "SK_Role1_Hair01",
+        "SK_Role1_Suit01A_CanvaShoes",
+        "SK_Role1_Suit01A_Pants",
+        "SK_Role1_Suit01A_Shirt"
+      ],
+      "collision": false
+    },
+    {
+      "id": "Suit03",
+      "url": "Ria_Suit03_Playful.glb",
+      "label": "Suit03",
+      "note": "已找到本组模型与遮挡图",
+      "parts": [
+        "SK_Role1_Body",
+        "SK_Role1_Head",
+        "SK_Role1_Hair01",
+        "SK_Role1_Suit03_LoefShoe",
+        "SK_Role1_Suit03_Shirt",
+        "SK_Role1_Suit03_Skirt",
+        "SK_Role1_Suit03_Stocking"
+      ],
+      "collision": false
+    },
+    {
+      "id": "Suit04",
+      "url": "Ria_Suit04_Playful.glb",
+      "label": "Suit04",
+      "note": "本组未找到鞋部件",
+      "parts": [
+        "SK_Role1_Body",
+        "SK_Role1_Head",
+        "SK_Role1_Hair01",
+        "SK_Role1_Suit04_Pants",
+        "SK_Role1_Suit04_Shirt"
+      ],
+      "collision": false
+    },
+    {
+      "id": "Suit05",
+      "url": "Ria_Suit05_Playful.glb",
+      "label": "Suit05",
+      "note": "未找到本套上衣，暂搭配 Suit13 上衣；本组未找到鞋部件",
+      "parts": [
+        "SK_Role1_Body",
+        "SK_Role1_Head",
+        "SK_Role1_Hair01",
+        "SK_Role1_Suit05_Bracelet01",
+        "SK_Role1_Suit05_Bracelet02",
+        "SK_Role1_Suit05_Pants",
+        "SK_Role1_Suit05_Pendant",
+        "SK_Role1_Suit05_Strap",
+        "SK_Role1_Suit13_Shirt"
+      ],
+      "collision": false
+    },
+    {
+      "id": "Suit09",
+      "url": "Ria_Suit09_Playful.glb",
+      "label": "Suit09",
+      "note": "本组未找到鞋部件",
+      "parts": [
+        "SK_Role1_Body",
+        "SK_Role1_Head",
+        "SK_Role1_Hair01",
+        "SK_Role1_Suit09_Shirt",
+        "SK_Role1_Suit09_Skirt",
+        "SK_Role1_Suit09_Sock"
+      ],
+      "collision": false
+    },
+    {
+      "id": "Suit10",
+      "url": "Ria_Suit10_Playful.glb",
+      "label": "Suit10",
+      "note": "已找到本组模型与遮挡图",
+      "parts": [
+        "SK_Role1_Body",
+        "SK_Role1_Head",
+        "SK_Role1_Hair01",
+        "SK_Role1_Suit10_Shirt",
+        "SK_Role1_Suit10_Shoe"
+      ],
+      "collision": false
+    },
+    {
+      "id": "Suit12",
+      "url": "Ria_Suit12_Playful.glb",
+      "label": "Suit12",
+      "note": "缺少专用遮挡图，穿模待校正",
+      "parts": [
+        "SK_Role1_Body",
+        "SK_Role1_Head",
+        "SK_Role1_Hair01",
+        "SK_Role1_Suit12_Bra",
+        "SK_Role1_Suit12_Bracelet",
+        "SK_Role1_Suit12_Earring",
+        "SK_Role1_Suit12_Shoe",
+        "SK_Role1_Suit12_Skirt"
+      ],
+      "collision": false
+    },
+    {
+      "id": "Suit13",
+      "url": "Ria_Suit13_Playful.glb",
+      "label": "Suit13",
+      "note": "已找到本组模型与遮挡图",
+      "parts": [
+        "SK_Role1_Body",
+        "SK_Role1_Head",
+        "SK_Role1_Hair01",
+        "SK_Role1_Suit13_Acc",
+        "SK_Role1_Suit13_Chain03",
+        "SK_Role1_Suit13_Shirt",
+        "SK_Role1_Suit13_Shoes",
+        "SK_Role1_Suit13_Skirt",
+        "SK_Role1_Suit13_Strap"
+      ],
+      "collision": true
+    },
+    {
+      "id": "Suit14",
+      "url": "Ria_Suit14_Playful.glb",
+      "label": "Suit14",
+      "note": "本组未找到鞋部件",
+      "parts": [
+        "SK_Role1_Body",
+        "SK_Role1_Head",
+        "SK_Role1_Hair01",
+        "SK_Role1_Suit14_Acc",
+        "SK_Role1_Suit14_Shirt",
+        "SK_Role1_Suit14_Skirt",
+        "SK_Role1_Suit14_Sleeve"
+      ],
+      "collision": false
+    }
+  ],
+  "missing": [
+    "Suit02",
+    "Suit06",
+    "Suit07",
+    "Suit08",
+    "Suit11"
+  ]
+}
