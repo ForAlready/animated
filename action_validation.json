@@ -1,0 +1,103 @@
+{
+  "states": [
+    {
+      "id": "energetic",
+      "duration": 3.2,
+      "loop": true,
+      "completion": "energetic"
+    },
+    {
+      "id": "shy",
+      "duration": 4.8,
+      "loop": true,
+      "completion": "shy"
+    },
+    {
+      "id": "scared",
+      "duration": 3.6,
+      "loop": true,
+      "completion": "scared"
+    },
+    {
+      "id": "happy_jump",
+      "duration": 4.6,
+      "loop": false,
+      "completion": "idle"
+    },
+    {
+      "id": "hug",
+      "duration": 4.8,
+      "loop": false,
+      "completion": "idle"
+    }
+  ],
+  "priority": true,
+  "fallback": true,
+  "requiresFace": true,
+  "idleRuntimeUnchanged": true,
+  "indexTipDistance": 0.020761889674618148,
+  "outfitImplementations": 0,
+  "outfits": [
+    {
+      "id": "Suit01",
+      "faceCount": 3,
+      "layer": "common",
+      "action": "energetic"
+    },
+    {
+      "id": "Suit01A",
+      "faceCount": 3,
+      "layer": "common",
+      "action": "energetic"
+    },
+    {
+      "id": "Suit03",
+      "faceCount": 3,
+      "layer": "common",
+      "action": "energetic"
+    },
+    {
+      "id": "Suit04",
+      "faceCount": 3,
+      "layer": "common",
+      "action": "energetic"
+    },
+    {
+      "id": "Suit05",
+      "faceCount": 3,
+      "layer": "common",
+      "action": "energetic"
+    },
+    {
+      "id": "Suit09",
+      "faceCount": 3,
+      "layer": "common",
+      "action": "energetic"
+    },
+    {
+      "id": "Suit10",
+      "faceCount": 3,
+      "layer": "common",
+      "action": "energetic"
+    },
+    {
+      "id": "Suit12",
+      "faceCount": 3,
+      "layer": "common",
+      "action": "energetic"
+    },
+    {
+      "id": "Suit13",
+      "faceCount": 3,
+      "layer": "common",
+      "action": "energetic"
+    },
+    {
+      "id": "Suit14",
+      "faceCount": 3,
+      "layer": "common",
+      "action": "energetic"
+    }
+  ],
+  "errors": []
+}

@@ -5,93 +5,93 @@
   "files": [
     {
       "file": "animated\\Ria_Suit01A_Playful.glb",
-      "bytes": 92422776,
+      "bytes": 92487876,
       "valid": true,
       "vertices": 43064,
       "triangles": 61512,
       "skins": 6,
-      "sha256": "fe4f11603abe57ead06d9189dc6b42f2a348d916084d49ff9fc118f72c83d095"
+      "sha256": "bb456f6b86d34198efb45dbd800663832f1427e09ad19373a659d4c7e4f5a651"
     },
     {
       "file": "animated\\Ria_Suit01_Playful.glb",
-      "bytes": 85813460,
+      "bytes": 85878564,
       "valid": true,
       "vertices": 63102,
       "triangles": 90919,
       "skins": 6,
-      "sha256": "dddf63b821b5657344ca677c1fdc39185e86cd6d58ba452fd79ec25f76c943e7"
+      "sha256": "66e2b2c52dbca10c334322cad76682841472d1b8a4ec12bc02852d38e59deed5"
     },
     {
       "file": "animated\\Ria_Suit03_Playful.glb",
-      "bytes": 77255580,
+      "bytes": 77320680,
       "valid": true,
       "vertices": 38263,
       "triangles": 55573,
       "skins": 7,
-      "sha256": "c0a8505ad68a55b093c5e0ce9b35f369625762b4dfec9b473f1a15fa7a8930fb"
+      "sha256": "eb0e924e907b8cbdad2e28ceeb88975f1d69fd8b4a40d987bd80405403efd773"
     },
     {
       "file": "animated\\Ria_Suit04_Playful.glb",
-      "bytes": 72002492,
+      "bytes": 72067596,
       "valid": true,
       "vertices": 30739,
       "triangles": 46041,
       "skins": 5,
-      "sha256": "bf6d1a5bf4d59678ed9edd7ea74ed924cc2a5d08c12b7a6da48e0e8ed2f944d3"
+      "sha256": "5c71711d359d7d4ee0d479f35ca2f4ad3068997a72fa752b831690c47f6ec373"
     },
     {
       "file": "animated\\Ria_Suit05_Playful.glb",
-      "bytes": 187352984,
+      "bytes": 187418084,
       "valid": true,
       "vertices": 54883,
       "triangles": 77518,
       "skins": 9,
-      "sha256": "aaa56fcb0daf02bd7f82d1509db039ab51d88314758302e8c4d465380b4c4e26"
+      "sha256": "4a20a5a313bbe72e21caf0cc4986c541e87caf8c4783bbdfc6a6d6f73abb904e"
     },
     {
       "file": "animated\\Ria_Suit09_Playful.glb",
-      "bytes": 112265776,
+      "bytes": 112330880,
       "valid": true,
       "vertices": 33134,
       "triangles": 50867,
       "skins": 6,
-      "sha256": "0614abc0f51314b8d92eb7c203b841f492039d5711b80ef09d5475e0bf8f14fb"
+      "sha256": "79afd7c0c73560a85db8a95d7ee55627d234363da712854a7f2d450e5f509068"
     },
     {
       "file": "animated\\Ria_Suit10_Playful.glb",
-      "bytes": 78178680,
+      "bytes": 78243784,
       "valid": true,
       "vertices": 39688,
       "triangles": 56777,
       "skins": 5,
-      "sha256": "e33b3cd650fe5852847c26342e0dde9a1327a1b215a6d6c0969893774f3a6036"
+      "sha256": "631cb430b32fbad58d9d0c3c4bf9b784124e82c960198fe163d620a477d3d764"
     },
     {
       "file": "animated\\Ria_Suit12_Playful.glb",
-      "bytes": 90441052,
+      "bytes": 90506152,
       "valid": true,
       "vertices": 36194,
       "triangles": 59976,
       "skins": 8,
-      "sha256": "78059fc0b943a3a75ab4bec9d495334ac6a6482b700bd45accd5b71ebf08067e"
+      "sha256": "b50865465ea2752bb56275070d804ea2fa20f6a96d99d2df5e191e524f3c0292"
     },
     {
       "file": "animated\\Ria_Suit13_Playful.glb",
-      "bytes": 88073936,
+      "bytes": 88139036,
       "valid": true,
       "vertices": 43266,
       "triangles": 62683,
       "skins": 9,
-      "sha256": "5ad6bf74b595519a123240c79724e83fb946d307db2cf83529f2c2bbe9176e7b"
+      "sha256": "2a90c92c10983d826f3154797da81a4b7f055d4a917a8b206642673daf8a53f6"
     },
     {
       "file": "animated\\Ria_Suit14_Playful.glb",
-      "bytes": 87130172,
+      "bytes": 87195272,
       "valid": true,
       "vertices": 36528,
       "triangles": 56576,
       "skins": 7,
-      "sha256": "2b13483a05c100f148d6321d4b8e83fbdc4c0da45dac7d319777c089df1e0058"
+      "sha256": "5947c4e1eb31ee4bb5641c386202ce87d71300949816f66f4cbfc3a90cbc6d5f"
     }
   ]
 }

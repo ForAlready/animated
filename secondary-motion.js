@@ -15,11 +15,11 @@ export class SecondaryMotion {
   });this.reset();
  }
  reset(){this.yaw=this.controls.getAzimuthalAngle();this.pitch=this.controls.getPolarAngle();for(const s of this.items){s.x=s.y=s.vx=s.vy=0;s.bone.quaternion.copy(s.rest);}}
- update(dt){
+ update(dt,motion={}){
   const yaw=this.controls.getAzimuthalAngle(),pitch=this.controls.getPolarAngle();
   let delta=yaw-this.yaw;delta=Math.atan2(Math.sin(delta),Math.cos(delta));const dp=pitch-this.pitch;this.yaw=yaw;this.pitch=pitch;
   if(!this.enabled)return;
-  dt=T.MathUtils.clamp(dt,1/240,.05);const horizontal=T.MathUtils.clamp(delta/dt,-5,5)*this.strength,vertical=T.MathUtils.clamp(dp/dt,-3,3)*this.strength;
+  dt=T.MathUtils.clamp(dt,1/240,.05);const horizontal=T.MathUtils.clamp(delta/dt,-5,5)*this.strength,vertical=T.MathUtils.clamp(dp/dt+(motion.vertical||0)*1.5,-3,3)*this.strength;
   const steps=Math.ceil(dt*120),h=dt/steps;
   for(const s of this.items){
    const tx=T.MathUtils.clamp(-vertical*s.gain,-s.limit,s.limit),ty=T.MathUtils.clamp(-horizontal*s.gain,-s.limit,s.limit);
