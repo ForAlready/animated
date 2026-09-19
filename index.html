@@ -10,6 +10,8 @@ const cameraFill=new T.DirectionalLight(0xfff7ef,.85);scene.add(cameraFill);scen
 let faceView=false;function frame(face){faceView=face;let h=size.y;const large=actions&&actions.id!=='idle';controls.target.set(center.x,h*(face?.86:large?.62:.53),center.z);camera.position.set(center.x,h*(face?.87:large?.65:.58),center.z+h*(face?.70:large?2.5:2.05));controls.update()}
 const registry=new ActionRegistry();commonActions.forEach(a=>{registry.registerCommon(a);$('motion').add(new Option(a.name,a.id))});window.actionRegistry=registry;let currentRoot=null,currentId=null,requestId=0;
 const loader=new GLTFLoader();
+const modelBase=location.hostname.endsWith('.github.io')?'https://media.githubusercontent.com/media/ForAlready/animated/main/':'./';
+const modelUrl=file=>modelBase+file;
 function disposeRoot(root){const geometries=new Set(),materials=new Set(),textures=new Set(),skeletons=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.skeleton)skeletons.add(o.skeleton);for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m){materials.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v)}});for(const x of [...geometries,...materials,...textures,...skeletons])x.dispose?.()}
 const catalog=await fetch('./wardrobe.json').then(r=>{if(!r.ok)throw new Error('服装目录加载失败');return r.json()});
 for(const e of catalog.outfits){const opt=new Option(e.label,e.id);$('outfit').add(opt)}
@@ -18,7 +20,7 @@ async function selectOutfit(id){
  const entry=catalog.outfits.find(e=>e.id===id);if(!entry)return;const ticket=++requestId;$('outfit').disabled=true;$('status').textContent='正在加载 '+id+'…';
  let g;
  try{
-  g=await loader.loadAsync('./'+entry.url+'?actions=2');if(ticket!==requestId){disposeRoot(g.scene);return}
+    g=await loader.loadAsync(modelUrl(entry.url)+'?actions=2');if(ticket!==requestId){disposeRoot(g.scene);return}
   const quality=configureTextures(g.scene,renderer);g.scene.updateMatrixWorld(true);
   const nextMixer=new T.AnimationMixer(g.scene),nextAction=nextMixer.clipAction(g.animations[0]);nextAction.play();
   const nextActions=new CharacterActions(g.scene,nextMixer,g.animations[0],id,registry);if(actions)nextActions.play(actions.id,true);const nextSecondary=new SecondaryMotion(g.scene,controls);nextSecondary.strength=+$('sway').value;
@@ -28,7 +30,7 @@ async function selectOutfit(id){
   const box=new T.Box3().setFromObject(g.scene);size=box.getSize(new T.Vector3());center=box.getCenter(new T.Vector3());if(!currentId)frame(false);
   currentId=id;ready=true;$('outfit').value=id;$('outfitNote').textContent=entry.note;
   $('collision').disabled=!entry.collision;$('collision').textContent=entry.collision?'裙摆碰撞：开':'本套碰撞：未适配';$('softness').textContent='柔软摆动：开';
-  $('download').href=entry.url;$('download').download=entry.url;$('status').textContent=id+' 已载入 · '+entry.note;
+    $('download').href=modelUrl(entry.url);$('download').download=entry.url;$('status').textContent=id+' 已载入 · '+entry.note;
   window.viewer={camera,controls,renderer,scene};window.character=g;window.mixer=mixer;window.cloth=cloth;window.secondary=secondary;window.renderQuality=quality;window.currentOutfit=id;window.ready=true;
   window.setAnimationTime=t=>{actions.seek(t);secondary.reset();cloth.reset();cloth.update();cameraFill.position.copy(camera.position);cameraFill.target.position.copy(controls.target);renderer.render(scene,camera)};
  }catch(e){if(g && g.scene!==currentRoot)disposeRoot(g.scene);$('status').textContent='加载失败：'+e.message;if(currentId)$('outfit').value=currentId;console.error(e);throw e}
