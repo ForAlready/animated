@@ -64,7 +64,7 @@
       "id": "Suit05",
       "url": "Ria_Suit05_Playful.glb",
       "label": "Suit05",
-      "note": "未找到本套上衣，暂搭配 Suit13 上衣；本组未找到鞋部件",
+      "note": "吊带裤套装，不搭配额外上衣；本组未找到鞋部件",
       "parts": [
         "SK_Role1_Body",
         "SK_Role1_Head",
@@ -73,8 +73,7 @@
         "SK_Role1_Suit05_Bracelet02",
         "SK_Role1_Suit05_Pants",
         "SK_Role1_Suit05_Pendant",
-        "SK_Role1_Suit05_Strap",
-        "SK_Role1_Suit13_Shirt"
+        "SK_Role1_Suit05_Strap"
       ],
       "collision": false
     },

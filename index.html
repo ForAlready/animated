@@ -18,7 +18,7 @@ async function selectOutfit(id){
  const entry=catalog.outfits.find(e=>e.id===id);if(!entry)return;const ticket=++requestId;$('outfit').disabled=true;$('status').textContent='正在加载 '+id+'…';
  let g;
  try{
-  g=await loader.loadAsync('./'+entry.url+'?actions=2');if(ticket!==requestId){disposeRoot(g.scene);return}
+  g=await loader.loadAsync('./'+entry.url+'?actions=4');if(ticket!==requestId){disposeRoot(g.scene);return}
   const quality=configureTextures(g.scene,renderer);g.scene.updateMatrixWorld(true);
   const nextMixer=new T.AnimationMixer(g.scene),nextAction=nextMixer.clipAction(g.animations[0]);nextAction.play();
   const nextActions=new CharacterActions(g.scene,nextMixer,g.animations[0],id,registry);if(actions)nextActions.play(actions.id,true);const nextSecondary=new SecondaryMotion(g.scene,controls);nextSecondary.strength=+$('sway').value;
@@ -40,3 +40,4 @@ await selectOutfit('Suit13');
 $('motion').onchange=e=>{actions.play(e.target.value);frame(faceView);playing=true;$('play').textContent='暂停';secondary.reset();cloth.reset()};$('softness').onclick=()=>{secondary.enabled=!secondary.enabled;secondary.reset();$('softness').textContent='柔软摆动：'+(secondary.enabled?'开':'关')};$('sway').oninput=e=>{secondary.strength=+e.target.value};$('collision').onclick=()=>{cloth.enabled=!cloth.enabled;cloth.reset();$('collision').textContent='裙摆碰撞：'+(cloth.enabled?'开':'关')};$('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'暂停':'播放'};$('face').onclick=()=>frame(true);$('full').onclick=()=>frame(false);$('speed').oninput=e=>{$('speedValue').textContent=Number(e.target.value).toFixed(2)+'×'};$('seek').oninput=e=>{playing=false;$('play').textContent='播放';actions?.seek(+e.target.value);cloth?.reset();secondary?.reset()};
 const clock=new T.Clock();function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05);controls.update();cameraFill.position.copy(camera.position);cameraFill.target.position.copy(controls.target);if(ready){const step=playing?dt*+$('speed').value:0;actions.beforeUpdate();mixer.update(step);actions.update(step);secondary.update(dt,{vertical:actions.id==='idle'?0:(currentRoot.position.y-(window.lastBodyY||0))/Math.max(dt,.001)});window.lastBodyY=currentRoot.position.y;cloth.update(dt);$('motion').value=actions.id;$('motionState').textContent=(actions.layer==='outfit'?'服饰专属':'通用')+' · '+actions.definition.name;$('time').textContent=actions.time.toFixed(1)+' / '+actions.duration+' 秒';$('seek').max=actions.duration;$('seek').value=actions.time}renderer.render(scene,camera)}loop();onresize=()=>{renderer.setPixelRatio(Math.min(devicePixelRatio,2));camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)};
 </script></html>
+
