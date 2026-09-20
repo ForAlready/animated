@@ -331,6 +331,7 @@ export class SecondaryMotion {
   // Apply physics config from outfit entry. Safely ignores bad/missing fields.
   // Schema: { preset?, channels?: { hair?: { preset? }, skirt?: { preset? } }, bones?: { shortName: { k?, d?, gain?, limit? } } }
   // Layering: 1) baseline → 2) config.preset/channels → 3) uiMul → 4) config.bones → 5) sidebar → 6) clamp
+  // hasConfig() returns true only if at least one valid setting was applied.
   applyConfig(physics) {
     this.clearConfig();
     
@@ -340,22 +341,25 @@ export class SecondaryMotion {
       return;
     }
 
-    this._hasConfig = true;
     const validPresets = ['soft', 'normal', 'hard', 'hair', 'skirt', 'default'];
+    let appliedPreset = false;
+    let appliedChannels = false;
+    let appliedBones = false;
 
     // Handle root-level preset
     if (physics.preset && typeof physics.preset === 'string') {
       const preset = physics.preset.toLowerCase();
       if (validPresets.includes(preset)) {
+        appliedPreset = true;
         if (preset === 'default') {
-          this._categoryMultiplier.hair = null;
-          this._categoryMultiplier.skirt = null;
+          this._categoryMultiplier.hair = 'normal';
+          this._categoryMultiplier.skirt = 'normal';
         } else if (preset === 'hair') {
           this._categoryMultiplier.hair = 'soft';
-          this._categoryMultiplier.skirt = null;
+          this._categoryMultiplier.skirt = 'normal';
         } else if (preset === 'skirt') {
           this._categoryMultiplier.skirt = 'soft';
-          this._categoryMultiplier.hair = null;
+          this._categoryMultiplier.hair = 'normal';
         } else if (PRESET_MULTIPLIERS[preset]) {
           this._categoryMultiplier.hair = preset;
           this._categoryMultiplier.skirt = preset;
@@ -371,8 +375,10 @@ export class SecondaryMotion {
           const chPreset = String(chConf.preset).toLowerCase();
           if (PRESET_MULTIPLIERS[chPreset]) {
             this._categoryMultiplier[channel] = chPreset;
+            appliedChannels = true;
           } else if (chPreset === 'default') {
-            this._categoryMultiplier[channel] = null;
+            this._categoryMultiplier[channel] = 'normal';
+            appliedChannels = true;
           }
         }
       }
@@ -394,9 +400,13 @@ export class SecondaryMotion {
         }
         if (Object.keys(override).length > 0) {
           this._configBoneOverrides[boneName] = override;
+          appliedBones = true;
         }
       }
     }
+
+    // Only mark hasConfig true if at least one valid setting was applied
+    this._hasConfig = appliedPreset || appliedChannels || appliedBones;
 
     this._refreshAllParams();
     this.reset();
