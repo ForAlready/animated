@@ -73,9 +73,16 @@ export class SecondaryMotion {
     // Each value defaults to 1.0, UI sliders range 0.5–2.0.
     this._uiMul = { k: 1, d: 1, gain: 1, limit: 1 };
 
+    // Config bone overrides: from outfit's physics config (absolute values).
+    // Applied after uiMul, before sidebar single-bone overrides.
+    this._configBoneOverrides = {};
+
     // Per-bone override storage: { "BoneShortName": { k?, d?, gain?, limit? } }
-    // Values are absolute (override after all multipliers).
+    // Values are absolute (override after all multipliers). Sidebar can override config.bones.
     this._boneOverrides = {};
+
+    // Whether current physics state came from outfit config.
+    this._hasConfig = false;
 
     root.traverse(b => {
       if (!b.isBone) return;
@@ -108,7 +115,7 @@ export class SecondaryMotion {
   }
 
   // Compute effective parameters for an item.
-  // Overlay order: 1) baseline → 2) ×preset → 3) ×uiMul → 4) bone override (absolute) → 5) final clamp.
+  // Overlay order: 1) baseline → 2) ×preset/channels → 3) ×uiMul → 4) config.bones → 5) sidebar bone override → 6) final clamp.
   _computeParams(item) {
     const baseline = PHYSICS_BASELINES[item.category];
     const multiplierKey = this._categoryMultiplier[item.category];
@@ -123,7 +130,16 @@ export class SecondaryMotion {
     params.gain  *= this._uiMul.gain;
     params.limit *= this._uiMul.limit;
 
-    // Step 4: bone override (absolute values replace computed)
+    // Step 4: config.bones override (absolute values from outfit config)
+    const configOverride = this._configBoneOverrides[item.shortName];
+    if (configOverride) {
+      if (configOverride.k !== undefined) params.k = configOverride.k;
+      if (configOverride.d !== undefined) params.d = configOverride.d;
+      if (configOverride.gain !== undefined) params.gain = configOverride.gain;
+      if (configOverride.limit !== undefined) params.limit = configOverride.limit;
+    }
+
+    // Step 5: sidebar bone override (can temporarily override config.bones)
     const override = this._boneOverrides[item.shortName];
     if (override) {
       if (override.k !== undefined) params.k = override.k;
@@ -132,7 +148,7 @@ export class SecondaryMotion {
       if (override.limit !== undefined) params.limit = override.limit;
     }
 
-    // Step 5: final clamp to safe ranges
+    // Step 6: final clamp to safe ranges
     return clampAllParams(params);
   }
 
@@ -298,6 +314,101 @@ export class SecondaryMotion {
   // Get current multiplier settings (legacy alias).
   getMultipliers() {
     return { ...this._categoryMultiplier };
+  }
+
+  // Whether physics state came from outfit config.
+  hasConfig() {
+    return this._hasConfig;
+  }
+
+  // Clear config state (called on outfit change before applyConfig).
+  clearConfig() {
+    this._hasConfig = false;
+    this._configBoneOverrides = {};
+    this._categoryMultiplier = { hair: null, skirt: null };
+  }
+
+  // Apply physics config from outfit entry. Safely ignores bad/missing fields.
+  // Schema: { preset?, channels?: { hair?: { preset? }, skirt?: { preset? } }, bones?: { shortName: { k?, d?, gain?, limit? } } }
+  // Layering: 1) baseline → 2) config.preset/channels → 3) uiMul → 4) config.bones → 5) sidebar → 6) clamp
+  applyConfig(physics) {
+    this.clearConfig();
+    
+    if (!physics || typeof physics !== 'object') {
+      this._refreshAllParams();
+      this.reset();
+      return;
+    }
+
+    this._hasConfig = true;
+    const validPresets = ['soft', 'normal', 'hard', 'hair', 'skirt', 'default'];
+
+    // Handle root-level preset
+    if (physics.preset && typeof physics.preset === 'string') {
+      const preset = physics.preset.toLowerCase();
+      if (validPresets.includes(preset)) {
+        if (preset === 'default') {
+          this._categoryMultiplier.hair = null;
+          this._categoryMultiplier.skirt = null;
+        } else if (preset === 'hair') {
+          this._categoryMultiplier.hair = 'soft';
+          this._categoryMultiplier.skirt = null;
+        } else if (preset === 'skirt') {
+          this._categoryMultiplier.skirt = 'soft';
+          this._categoryMultiplier.hair = null;
+        } else if (PRESET_MULTIPLIERS[preset]) {
+          this._categoryMultiplier.hair = preset;
+          this._categoryMultiplier.skirt = preset;
+        }
+      }
+    }
+
+    // Handle channels (override root preset for specific channels)
+    if (physics.channels && typeof physics.channels === 'object') {
+      for (const channel of ['hair', 'skirt']) {
+        const chConf = physics.channels[channel];
+        if (chConf && typeof chConf === 'object' && chConf.preset) {
+          const chPreset = String(chConf.preset).toLowerCase();
+          if (PRESET_MULTIPLIERS[chPreset]) {
+            this._categoryMultiplier[channel] = chPreset;
+          } else if (chPreset === 'default') {
+            this._categoryMultiplier[channel] = null;
+          }
+        }
+      }
+    }
+
+    // Handle bones (absolute overrides, k/d/gain/limit only)
+    if (physics.bones && typeof physics.bones === 'object') {
+      const allowedKeys = ['k', 'd', 'gain', 'limit'];
+      for (const [boneName, boneConf] of Object.entries(physics.bones)) {
+        if (!boneConf || typeof boneConf !== 'object') continue;
+        const itemExists = this.items.some(i => i.shortName === boneName);
+        if (!itemExists) continue;
+        
+        const override = {};
+        for (const key of allowedKeys) {
+          if (boneConf[key] !== undefined && typeof boneConf[key] === 'number' && isFinite(boneConf[key])) {
+            override[key] = boneConf[key];
+          }
+        }
+        if (Object.keys(override).length > 0) {
+          this._configBoneOverrides[boneName] = override;
+        }
+      }
+    }
+
+    this._refreshAllParams();
+    this.reset();
+  }
+
+  // Get config bone overrides (for debugging/display).
+  getConfigBoneOverrides() {
+    const result = {};
+    for (const [k, v] of Object.entries(this._configBoneOverrides)) {
+      result[k] = { ...v };
+    }
+    return result;
   }
 
   sampleDrivers() {

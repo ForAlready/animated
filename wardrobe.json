@@ -140,7 +140,17 @@
         "SK_Role1_Suit13_Skirt",
         "SK_Role1_Suit13_Strap"
       ],
-      "collision": true
+      "collision": true,
+      "physics": {
+        "preset": "normal",
+        "channels": {
+          "hair": { "preset": "soft" },
+          "skirt": { "preset": "normal" }
+        },
+        "bones": {
+          "Hair01_03": { "k": 50, "d": 8 }
+        }
+      }
     },
     {
       "id": "Suit14",
