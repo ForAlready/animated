@@ -30,10 +30,19 @@ function clampParam(key, value) {
 
 function applyMultiplier(baseline, multiplier) {
   return {
-    k:     clampParam('k',     baseline.k     * multiplier.k),
-    d:     clampParam('d',     baseline.d     * multiplier.d),
-    gain:  clampParam('gain',  baseline.gain  * multiplier.gain),
-    limit: clampParam('limit', baseline.limit * multiplier.limit),
+    k:     baseline.k     * multiplier.k,
+    d:     baseline.d     * multiplier.d,
+    gain:  baseline.gain  * multiplier.gain,
+    limit: baseline.limit * multiplier.limit,
+  };
+}
+
+function clampAllParams(params) {
+  return {
+    k:     clampParam('k',     params.k),
+    d:     clampParam('d',     params.d),
+    gain:  clampParam('gain',  params.gain),
+    limit: clampParam('limit', params.limit),
   };
 }
 
@@ -60,7 +69,12 @@ export class SecondaryMotion {
     // Current multiplier preset per category (null = baseline ×1).
     this._categoryMultiplier = { hair: null, skirt: null };
 
-    // Per-bone override storage: { "BoneShortName": { preset?, k?, d?, gain?, limit? } }
+    // Global UI multipliers: applied after preset, before bone overrides.
+    // Each value defaults to 1.0, UI sliders range 0.5–2.0.
+    this._uiMul = { k: 1, d: 1, gain: 1, limit: 1 };
+
+    // Per-bone override storage: { "BoneShortName": { k?, d?, gain?, limit? } }
+    // Values are absolute (override after all multipliers).
     this._boneOverrides = {};
 
     root.traverse(b => {
@@ -93,30 +107,33 @@ export class SecondaryMotion {
     this.reset();
   }
 
-  // Compute effective parameters for an item based on category baseline, multiplier, and overrides.
+  // Compute effective parameters for an item.
+  // Overlay order: 1) baseline → 2) ×preset → 3) ×uiMul → 4) bone override (absolute) → 5) final clamp.
   _computeParams(item) {
     const baseline = PHYSICS_BASELINES[item.category];
     const multiplierKey = this._categoryMultiplier[item.category];
-    const multiplier = multiplierKey ? PRESET_MULTIPLIERS[multiplierKey] : PRESET_MULTIPLIERS.normal;
+    const preset = multiplierKey ? PRESET_MULTIPLIERS[multiplierKey] : PRESET_MULTIPLIERS.normal;
     
-    // Start with baseline × multiplier
-    let params = applyMultiplier(baseline, multiplier);
+    // Step 1-2: baseline × preset multiplier
+    let params = applyMultiplier(baseline, preset);
 
-    // Apply per-bone overrides
+    // Step 3: × uiMul (global UI multipliers)
+    params.k     *= this._uiMul.k;
+    params.d     *= this._uiMul.d;
+    params.gain  *= this._uiMul.gain;
+    params.limit *= this._uiMul.limit;
+
+    // Step 4: bone override (absolute values replace computed)
     const override = this._boneOverrides[item.shortName];
     if (override) {
-      // If preset override specified, use that multiplier instead
-      if (override.preset && PRESET_MULTIPLIERS[override.preset]) {
-        params = applyMultiplier(baseline, PRESET_MULTIPLIERS[override.preset]);
-      }
-      // Then apply individual parameter overrides (absolute values)
-      if (override.k !== undefined) params.k = clampParam('k', override.k);
-      if (override.d !== undefined) params.d = clampParam('d', override.d);
-      if (override.gain !== undefined) params.gain = clampParam('gain', override.gain);
-      if (override.limit !== undefined) params.limit = clampParam('limit', override.limit);
+      if (override.k !== undefined) params.k = override.k;
+      if (override.d !== undefined) params.d = override.d;
+      if (override.gain !== undefined) params.gain = override.gain;
+      if (override.limit !== undefined) params.limit = override.limit;
     }
 
-    return params;
+    // Step 5: final clamp to safe ranges
+    return clampAllParams(params);
   }
 
   // Refresh all items with current multipliers and overrides.
@@ -136,6 +153,7 @@ export class SecondaryMotion {
   // - hair: hair×soft, skirt×normal
   // - skirt: skirt×soft, hair×normal
   // - default: reset all to baseline (both ×normal)
+  // Note: setPreset does NOT reset uiMul — use resetUiMul() separately if needed.
   setPreset(presetName, category = 'all') {
     if (presetName === 'default') {
       this._categoryMultiplier.hair = null;
@@ -165,14 +183,60 @@ export class SecondaryMotion {
     this.reset();
   }
 
+  // Get current uiMul values.
+  getUiMul() {
+    return { ...this._uiMul };
+  }
+
+  // Set uiMul values (partial update allowed). Triggers refresh.
+  setUiMul(values) {
+    if (values.k !== undefined) this._uiMul.k = values.k;
+    if (values.d !== undefined) this._uiMul.d = values.d;
+    if (values.gain !== undefined) this._uiMul.gain = values.gain;
+    if (values.limit !== undefined) this._uiMul.limit = values.limit;
+    this._refreshAllParams();
+  }
+
+  // Reset uiMul to defaults (all 1.0). Triggers refresh.
+  resetUiMul() {
+    this._uiMul = { k: 1, d: 1, gain: 1, limit: 1 };
+    this._refreshAllParams();
+  }
+
+  // Public refresh: recompute all bone parameters from current settings.
+  refresh() {
+    this._refreshAllParams();
+  }
+
   // Set per-bone override configuration.
-  // bones: { "BoneShortName": { preset?, k?, d?, gain?, limit? }, ... }
-  // preset: 'soft' | 'normal' | 'hard' (applies multiplier to bone's category baseline)
-  // k/d/gain/limit: absolute values (override after multiplier)
+  // bones: { "BoneShortName": { k?, d?, gain?, limit? }, ... }
+  // k/d/gain/limit: absolute values (override after all multipliers)
   setBoneOverrides(bones) {
     Object.assign(this._boneOverrides, bones);
     this._refreshAllParams();
     this.reset();
+  }
+
+  // Set override for a single bone. Values are absolute (empty/undefined = inherit).
+  // Example: setSingleBoneOverride('Hair01_03', { k: 50, d: 8 })
+  setSingleBoneOverride(shortName, values) {
+    if (!values || Object.keys(values).length === 0) {
+      delete this._boneOverrides[shortName];
+    } else {
+      this._boneOverrides[shortName] = { ...values };
+    }
+    this._refreshAllParams();
+  }
+
+  // Get override for a single bone (or null if none).
+  getSingleBoneOverride(shortName) {
+    return this._boneOverrides[shortName] ? { ...this._boneOverrides[shortName] } : null;
+  }
+
+  // Clear override for a single bone.
+  clearSingleBoneOverride(shortName) {
+    delete this._boneOverrides[shortName];
+    this._refreshAllParams();
   }
 
   // Clear all per-bone overrides and refresh from category multipliers.
@@ -180,6 +244,15 @@ export class SecondaryMotion {
     this._boneOverrides = {};
     this._refreshAllParams();
     this.reset();
+  }
+
+  // Get all bone overrides.
+  getBoneOverrides() {
+    const result = {};
+    for (const [k, v] of Object.entries(this._boneOverrides)) {
+      result[k] = { ...v };
+    }
+    return result;
   }
 
   // Get current physics parameters for a bone by short name.
@@ -194,7 +267,9 @@ export class SecondaryMotion {
       gain: item.gain,
       limit: item.limit,
       baseline: PHYSICS_BASELINES[item.category],
-      multiplier: this._categoryMultiplier[item.category] || 'normal',
+      preset: this._categoryMultiplier[item.category] || 'normal',
+      uiMul: { ...this._uiMul },
+      override: this._boneOverrides[item.shortName] || null,
     };
   }
 
@@ -207,11 +282,20 @@ export class SecondaryMotion {
       d: i.d,
       gain: i.gain,
       limit: i.limit,
-      multiplier: this._categoryMultiplier[i.category] || 'normal',
+      preset: this._categoryMultiplier[i.category] || 'normal',
+      hasOverride: !!this._boneOverrides[i.shortName],
     }));
   }
 
-  // Get current multiplier settings.
+  // Get current preset per category.
+  getPresets() {
+    return {
+      hair: this._categoryMultiplier.hair || 'normal',
+      skirt: this._categoryMultiplier.skirt || 'normal',
+    };
+  }
+
+  // Get current multiplier settings (legacy alias).
   getMultipliers() {
     return { ...this._categoryMultiplier };
   }
