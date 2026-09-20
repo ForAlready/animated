@@ -1,10 +1,19 @@
 import * as T from 'three';
 
 // Default capsule collider configuration for Suit13 legs
-const DEFAULT_COLLIDER_CONFIG = [
+const DEFAULT_CAPSULE_CONFIG = [
  { boneStart: 'Hip_L', boneEnd: 'Knee_L', r0: 0.060, r1: 0.044, padding: 0.006, enabled: true },
  { boneStart: 'Hip_R', boneEnd: 'Knee_R', r0: 0.060, r1: 0.044, padding: 0.006, enabled: true }
 ];
+
+// Default sphere collider configuration for chest/torso (reduces arm-through-body clipping)
+const DEFAULT_SPHERE_CONFIG = [
+ { bone: 'Chest_M', radius: 0.13, padding: 0.008, enabled: true },
+ { bone: 'Spine2_M', radius: 0.15, padding: 0.008, enabled: true }
+];
+
+// Combined default config (backward compatible)
+const DEFAULT_COLLIDER_CONFIG = DEFAULT_CAPSULE_CONFIG;
 
 // Runtime collision projection. The original mesh and downloadable GLB stay intact.
 export class ClothCollision {
@@ -67,6 +76,31 @@ export class ClothCollision {
    this.capsules.push(capsule);
   }
 
+  // Build sphere colliders for chest/torso
+  const sphereConfig = options.spheres ?? DEFAULT_SPHERE_CONFIG;
+  this.sphereConfig = sphereConfig;
+  this.spheres = [];
+  
+  for (const cfg of sphereConfig) {
+   const bone = this.bones[cfg.bone];
+   if (!bone) continue;
+   
+   const sphere = {
+    bone,
+    center: new T.Vector3(),
+    radius: cfg.radius,
+    padding: cfg.padding ?? 0.008,
+    enabled: cfg.enabled ?? true,
+    config: cfg,
+    debugMesh: null
+   };
+   
+   sphere.debugMesh = this._createSphereDebugMesh(cfg.radius);
+   this.debugGroup.add(sphere.debugMesh);
+   
+   this.spheres.push(sphere);
+  }
+
   // Add debug group to scene
   root.add(this.debugGroup);
 
@@ -86,6 +120,8 @@ export class ClothCollision {
 
   if (!this.items.length || this.capsules.length === 0)
    throw new Error('Missing skirt collision rig');
+  
+  // Spheres are optional enhancement for arm-body collision
  }
 
  _createCapsuleDebugMesh(r0, r1) {
@@ -141,6 +177,51 @@ export class ClothCollision {
   group.add(wireCylinder);
 
   return group;
+ }
+
+ _createSphereDebugMesh(radius) {
+  const group = new T.Group();
+  
+  const material = new T.MeshBasicMaterial({
+   color: 0xff8800,
+   transparent: true,
+   opacity: 0.30,
+   depthWrite: false,
+   side: T.DoubleSide
+  });
+
+  const sphereGeo = new T.SphereGeometry(radius, 16, 12);
+  const sphere = new T.Mesh(sphereGeo, material);
+  sphere.name = 'sphere';
+  group.add(sphere);
+
+  const wireMaterial = new T.MeshBasicMaterial({
+   color: 0xff8800,
+   wireframe: true,
+   transparent: true,
+   opacity: 0.5
+  });
+
+  const wireSphere = new T.Mesh(sphereGeo.clone(), wireMaterial);
+  wireSphere.name = 'wireSphere';
+  group.add(wireSphere);
+
+  return group;
+ }
+
+ _updateSphereDebugMesh(sphere) {
+  const mesh = sphere.debugMesh;
+  if (!mesh) return;
+
+  const center = sphere.center;
+  
+  const sphereMesh = mesh.getObjectByName('sphere');
+  const wireSphere = mesh.getObjectByName('wireSphere');
+  
+  if (sphereMesh) sphereMesh.position.copy(center);
+  if (wireSphere) wireSphere.position.copy(center);
+
+  mesh.visible = sphere.enabled;
  }
 
  _updateDebugMesh(capsule) {
@@ -203,6 +284,15 @@ export class ClothCollision {
   }
  }
 
+ setSphereEnabled(index, enabled) {
+  if (index >= 0 && index < this.spheres.length) {
+   this.spheres[index].enabled = enabled;
+   if (this.spheres[index].debugMesh) {
+    this.spheres[index].debugMesh.visible = enabled && this.showColliders;
+   }
+  }
+ }
+
  updateColliderConfig(index, config) {
   if (index >= 0 && index < this.capsules.length) {
    const capsule = this.capsules[index];
@@ -213,6 +303,20 @@ export class ClothCollision {
     capsule.enabled = config.enabled;
     if (capsule.debugMesh) {
      capsule.debugMesh.visible = config.enabled && this.showColliders;
+    }
+   }
+  }
+ }
+
+ updateSphereConfig(index, config) {
+  if (index >= 0 && index < this.spheres.length) {
+   const sphere = this.spheres[index];
+   if (config.radius !== undefined) sphere.radius = config.radius;
+   if (config.padding !== undefined) sphere.padding = config.padding;
+   if (config.enabled !== undefined) {
+    sphere.enabled = config.enabled;
+    if (sphere.debugMesh) {
+     sphere.debugMesh.visible = config.enabled && this.showColliders;
     }
    }
   }
@@ -230,6 +334,16 @@ export class ClothCollision {
   }));
  }
 
+ getSphereConfig() {
+  return this.spheres.map((s, i) => ({
+   index: i,
+   bone: s.config.bone,
+   radius: s.radius,
+   padding: s.padding,
+   enabled: s.enabled
+  }));
+ }
+
  reset() {
   for (const item of this.items) {
    item.offset.fill(0);
@@ -244,6 +358,7 @@ export class ClothCollision {
  project(p) {
   let hit = false;
   for (let pass = 0; pass < 3; pass++) {
+   // Project against capsules
    for (const c of this.capsules) {
     if (!c.enabled) continue;
     
@@ -265,6 +380,23 @@ export class ClothCollision {
      hit = true;
     }
    }
+
+   // Project against spheres (chest/torso)
+   for (const s of this.spheres) {
+    if (!s.enabled) continue;
+    
+    this.delta.subVectors(p, s.center);
+    const distance = this.delta.length();
+    const radius = s.radius + s.padding;
+    
+    if (distance < radius) {
+     if (distance < 1e-7) this.delta.set(0, 0, 1);
+     else this.delta.multiplyScalar(1 / distance);
+     const projected = radius + 0.002 * Math.exp((distance - radius) / 0.004);
+     p.copy(s.center).addScaledVector(this.delta, projected);
+     hit = true;
+    }
+   }
   }
   return hit;
  }
@@ -283,10 +415,18 @@ export class ClothCollision {
    c.b.getWorldPosition(c.end);
   }
 
+  // Update sphere positions from bones
+  for (const s of this.spheres) {
+   s.bone.getWorldPosition(s.center);
+  }
+
   // Update debug visualization if visible
   if (this.showColliders) {
    for (const c of this.capsules) {
     this._updateDebugMesh(c);
+   }
+   for (const s of this.spheres) {
+    this._updateSphereDebugMesh(s);
    }
   }
 
@@ -334,10 +474,19 @@ export class ClothCollision {
  }
 
  dispose() {
-  // Clean up debug meshes
+  // Clean up capsule debug meshes
   for (const c of this.capsules) {
    if (c.debugMesh) {
     c.debugMesh.traverse(obj => {
+     if (obj.geometry) obj.geometry.dispose();
+     if (obj.material) obj.material.dispose();
+    });
+   }
+  }
+  // Clean up sphere debug meshes
+  for (const s of this.spheres) {
+   if (s.debugMesh) {
+    s.debugMesh.traverse(obj => {
      if (obj.geometry) obj.geometry.dispose();
      if (obj.material) obj.material.dispose();
     });
