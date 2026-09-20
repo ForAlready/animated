@@ -191,7 +191,7 @@ export class ClothCollision {
 
  setShowColliders(show) {
   this.showColliders = show;
-  this.debugGroup.visible = show;
+  this.debugGroup.visible = this.enabled && show;
  }
 
  setColliderEnabled(index, enabled) {
@@ -270,6 +270,9 @@ export class ClothCollision {
  }
 
  update(dt = 1 / 60) {
+  // Sync debug visibility: hidden when collision disabled
+  this.debugGroup.visible = this.enabled && this.showColliders;
+  
   if (!this.enabled) return;
   
   this.root.updateMatrixWorld(true);
