@@ -1,14 +1,41 @@
 import * as T from 'three';
 
-// Physics presets for secondary motion parameters.
+// Category baselines: original hardcoded values as the reference point.
 // k = spring stiffness, d = damping, gain = input sensitivity, limit = max deflection (radians).
-export const PHYSICS_PRESETS = {
-  soft:   { k: 30, d: 8,  gain: 0.015,  limit: 0.06  },
-  skirt:  { k: 45, d: 9,  gain: 0.010,  limit: 0.045 },
-  normal: { k: 55, d: 10, gain: 0.006,  limit: 0.028 },
-  hair:   { k: 65, d: 11, gain: 0.0025, limit: 0.012 },
-  hard:   { k: 80, d: 12, gain: 0.001,  limit: 0.008 },
+export const PHYSICS_BASELINES = {
+  hair:  { k: 65, d: 11, gain: 0.0025, limit: 0.012 },
+  skirt: { k: 45, d: 9,  gain: 0.010,  limit: 0.045 },
 };
+
+// Preset multipliers: applied to each bone's category baseline.
+// result = baseline(category) × multiplier, then clamped to safe ranges.
+export const PRESET_MULTIPLIERS = {
+  soft:   { k: 0.70, d: 0.90, gain: 1.40, limit: 1.40 },
+  normal: { k: 1.00, d: 1.00, gain: 1.00, limit: 1.00 },
+  hard:   { k: 1.25, d: 1.10, gain: 0.60, limit: 0.65 },
+};
+
+// Safe parameter ranges to prevent physics explosion.
+const PARAM_CLAMP = {
+  k:     { min: 10,    max: 150   },
+  d:     { min: 3,     max: 25    },
+  gain:  { min: 0.001, max: 0.025 },
+  limit: { min: 0.005, max: 0.10  },
+};
+
+function clampParam(key, value) {
+  const c = PARAM_CLAMP[key];
+  return Math.max(c.min, Math.min(c.max, value));
+}
+
+function applyMultiplier(baseline, multiplier) {
+  return {
+    k:     clampParam('k',     baseline.k     * multiplier.k),
+    d:     clampParam('d',     baseline.d     * multiplier.d),
+    gain:  clampParam('gain',  baseline.gain  * multiplier.gain),
+    limit: clampParam('limit', baseline.limit * multiplier.limit),
+  };
+}
 
 // Bounded angular springs preserve bone lengths and the authored rest volume.
 // Drive = OrbitControls angular rate + body Chest/Head world angular rate (animation).
@@ -30,6 +57,9 @@ export class SecondaryMotion {
     this._deltaQ = new T.Quaternion();
     this.boneDrive = 1;
 
+    // Current multiplier preset per category (null = baseline ×1).
+    this._categoryMultiplier = { hair: null, skirt: null };
+
     // Per-bone override storage: { "BoneShortName": { preset?, k?, d?, gain?, limit? } }
     this._boneOverrides = {};
 
@@ -47,86 +77,105 @@ export class SecondaryMotion {
       if (hair && depth < 3) return;
 
       const category = hair ? 'hair' : 'skirt';
-      const preset = PHYSICS_PRESETS[category];
+      const baseline = PHYSICS_BASELINES[category];
       this.items.push({
         bone: b,
         shortName: name,
         category,
         rest: b.quaternion.clone(),
         x: 0, y: 0, vx: 0, vy: 0,
-        k: preset.k,
-        d: preset.d,
-        gain: preset.gain,
-        limit: preset.limit,
+        k: baseline.k,
+        d: baseline.d,
+        gain: baseline.gain,
+        limit: baseline.limit,
       });
     });
     this.reset();
   }
 
-  // Apply per-bone overrides from the stored configuration.
-  _applyOverrides(item) {
-    const override = this._boneOverrides[item.shortName];
-    if (!override) return;
+  // Compute effective parameters for an item based on category baseline, multiplier, and overrides.
+  _computeParams(item) {
+    const baseline = PHYSICS_BASELINES[item.category];
+    const multiplierKey = this._categoryMultiplier[item.category];
+    const multiplier = multiplierKey ? PRESET_MULTIPLIERS[multiplierKey] : PRESET_MULTIPLIERS.normal;
+    
+    // Start with baseline × multiplier
+    let params = applyMultiplier(baseline, multiplier);
 
-    // If preset is specified, start from that preset
-    if (override.preset && PHYSICS_PRESETS[override.preset]) {
-      const p = PHYSICS_PRESETS[override.preset];
+    // Apply per-bone overrides
+    const override = this._boneOverrides[item.shortName];
+    if (override) {
+      // If preset override specified, use that multiplier instead
+      if (override.preset && PRESET_MULTIPLIERS[override.preset]) {
+        params = applyMultiplier(baseline, PRESET_MULTIPLIERS[override.preset]);
+      }
+      // Then apply individual parameter overrides (absolute values)
+      if (override.k !== undefined) params.k = clampParam('k', override.k);
+      if (override.d !== undefined) params.d = clampParam('d', override.d);
+      if (override.gain !== undefined) params.gain = clampParam('gain', override.gain);
+      if (override.limit !== undefined) params.limit = clampParam('limit', override.limit);
+    }
+
+    return params;
+  }
+
+  // Refresh all items with current multipliers and overrides.
+  _refreshAllParams() {
+    for (const item of this.items) {
+      const p = this._computeParams(item);
       item.k = p.k;
       item.d = p.d;
       item.gain = p.gain;
       item.limit = p.limit;
     }
-    // Then apply individual overrides
-    if (override.k !== undefined) item.k = override.k;
-    if (override.d !== undefined) item.d = override.d;
-    if (override.gain !== undefined) item.gain = override.gain;
-    if (override.limit !== undefined) item.limit = override.limit;
   }
 
-  // Set global preset for a category ('hair', 'skirt') or 'all'.
+  // Set preset for a category ('hair', 'skirt') or 'all'.
+  // presetName: 'soft' | 'normal' | 'hard' | 'hair' | 'skirt' | 'default'
+  // - soft/normal/hard: apply multiplier to specified category(ies)
+  // - hair/skirt: reset that category to baseline (multiplier = normal)
+  // - default: reset all to baseline
   setPreset(presetName, category = 'all') {
-    const preset = PHYSICS_PRESETS[presetName];
-    if (!preset) {
-      console.warn(`Unknown preset: ${presetName}. Available: ${Object.keys(PHYSICS_PRESETS).join(', ')}`);
+    if (presetName === 'default') {
+      this._categoryMultiplier.hair = null;
+      this._categoryMultiplier.skirt = null;
+    } else if (PRESET_MULTIPLIERS[presetName]) {
+      // soft/normal/hard: set multiplier for specified categories
+      if (category === 'all' || category === 'hair') {
+        this._categoryMultiplier.hair = presetName;
+      }
+      if (category === 'all' || category === 'skirt') {
+        this._categoryMultiplier.skirt = presetName;
+      }
+    } else if (presetName === 'hair') {
+      // Reset hair category to baseline only
+      this._categoryMultiplier.hair = null;
+    } else if (presetName === 'skirt') {
+      // Reset skirt category to baseline only
+      this._categoryMultiplier.skirt = null;
+    } else {
+      console.warn(`Unknown preset: ${presetName}. Available: default, soft, normal, hard, hair, skirt`);
       return;
     }
-    for (const item of this.items) {
-      if (category !== 'all' && item.category !== category) continue;
-      item.k = preset.k;
-      item.d = preset.d;
-      item.gain = preset.gain;
-      item.limit = preset.limit;
-      this._applyOverrides(item);
-    }
+
+    this._refreshAllParams();
     this.reset();
   }
 
   // Set per-bone override configuration.
   // bones: { "BoneShortName": { preset?, k?, d?, gain?, limit? }, ... }
+  // preset: 'soft' | 'normal' | 'hard' (applies multiplier to bone's category baseline)
+  // k/d/gain/limit: absolute values (override after multiplier)
   setBoneOverrides(bones) {
     Object.assign(this._boneOverrides, bones);
-    // Re-apply all items with their category defaults then overrides
-    for (const item of this.items) {
-      const preset = PHYSICS_PRESETS[item.category];
-      item.k = preset.k;
-      item.d = preset.d;
-      item.gain = preset.gain;
-      item.limit = preset.limit;
-      this._applyOverrides(item);
-    }
+    this._refreshAllParams();
     this.reset();
   }
 
-  // Clear all per-bone overrides and reset to category defaults.
+  // Clear all per-bone overrides and refresh from category multipliers.
   clearBoneOverrides() {
     this._boneOverrides = {};
-    for (const item of this.items) {
-      const preset = PHYSICS_PRESETS[item.category];
-      item.k = preset.k;
-      item.d = preset.d;
-      item.gain = preset.gain;
-      item.limit = preset.limit;
-    }
+    this._refreshAllParams();
     this.reset();
   }
 
@@ -134,7 +183,16 @@ export class SecondaryMotion {
   getBoneParams(shortName) {
     const item = this.items.find(i => i.shortName === shortName);
     if (!item) return null;
-    return { k: item.k, d: item.d, gain: item.gain, limit: item.limit, category: item.category };
+    return {
+      shortName: item.shortName,
+      category: item.category,
+      k: item.k,
+      d: item.d,
+      gain: item.gain,
+      limit: item.limit,
+      baseline: PHYSICS_BASELINES[item.category],
+      multiplier: this._categoryMultiplier[item.category] || 'normal',
+    };
   }
 
   // List all tracked bones with their current parameters.
@@ -146,7 +204,13 @@ export class SecondaryMotion {
       d: i.d,
       gain: i.gain,
       limit: i.limit,
+      multiplier: this._categoryMultiplier[i.category] || 'normal',
     }));
+  }
+
+  // Get current multiplier settings.
+  getMultipliers() {
+    return { ...this._categoryMultiplier };
   }
 
   sampleDrivers() {
