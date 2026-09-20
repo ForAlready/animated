@@ -133,8 +133,9 @@ export class SecondaryMotion {
   // Set preset for a category ('hair', 'skirt') or 'all'.
   // presetName: 'soft' | 'normal' | 'hard' | 'hair' | 'skirt' | 'default'
   // - soft/normal/hard: apply multiplier to specified category(ies)
-  // - hair/skirt: reset that category to baseline (multiplier = normal)
-  // - default: reset all to baseline
+  // - hair: hair×soft, skirt×normal
+  // - skirt: skirt×soft, hair×normal
+  // - default: reset all to baseline (both ×normal)
   setPreset(presetName, category = 'all') {
     if (presetName === 'default') {
       this._categoryMultiplier.hair = null;
@@ -148,11 +149,13 @@ export class SecondaryMotion {
         this._categoryMultiplier.skirt = presetName;
       }
     } else if (presetName === 'hair') {
-      // Reset hair category to baseline only
-      this._categoryMultiplier.hair = null;
-    } else if (presetName === 'skirt') {
-      // Reset skirt category to baseline only
+      // hair channel = soft, skirt channel = normal
+      this._categoryMultiplier.hair = 'soft';
       this._categoryMultiplier.skirt = null;
+    } else if (presetName === 'skirt') {
+      // skirt channel = soft, hair channel = normal
+      this._categoryMultiplier.skirt = 'soft';
+      this._categoryMultiplier.hair = null;
     } else {
       console.warn(`Unknown preset: ${presetName}. Available: default, soft, normal, hard, hair, skirt`);
       return;
