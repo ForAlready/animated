@@ -6,10 +6,11 @@ const DEFAULT_CAPSULE_CONFIG = [
  { boneStart: 'Hip_R', boneEnd: 'Knee_R', r0: 0.060, r1: 0.044, padding: 0.006, enabled: true }
 ];
 
-// Default sphere collider configuration for chest/torso (reduces arm-through-body clipping)
+// Default sphere collider configuration for chest/abdomen (reduces arm-through-body clipping)
+// Final physics spec: chest r=0.09, abdomen r=0.07, padding=0.006
 const DEFAULT_SPHERE_CONFIG = [
- { bone: 'Chest_M', radius: 0.13, padding: 0.008, enabled: true },
- { bone: 'Spine2_M', radius: 0.15, padding: 0.008, enabled: true }
+ { bone: 'Chest_M', radius: 0.09, padding: 0.006, enabled: true },
+ { bone: 'Spine_M', fallback: ['Waist_M', 'Stomach_M', 'Spine1_M'], radius: 0.07, padding: 0.006, enabled: true }
 ];
 
 // Combined default config (backward compatible)
@@ -76,20 +77,27 @@ export class ClothCollision {
    this.capsules.push(capsule);
   }
 
-  // Build sphere colliders for chest/torso
+  // Build sphere colliders for chest/abdomen
   const sphereConfig = options.spheres ?? DEFAULT_SPHERE_CONFIG;
   this.sphereConfig = sphereConfig;
   this.spheres = [];
   
   for (const cfg of sphereConfig) {
-   const bone = this.bones[cfg.bone];
+   // Support fallback bones for abdomen
+   let bone = this.bones[cfg.bone];
+   if (!bone && cfg.fallback) {
+    for (const fb of cfg.fallback) {
+     bone = this.bones[fb];
+     if (bone) break;
+    }
+   }
    if (!bone) continue;
    
    const sphere = {
     bone,
     center: new T.Vector3(),
     radius: cfg.radius,
-    padding: cfg.padding ?? 0.008,
+    padding: cfg.padding ?? 0.006,
     enabled: cfg.enabled ?? true,
     config: cfg,
     debugMesh: null
@@ -460,6 +468,19 @@ export class ClothCollision {
     this.target.add(this.saved);
     if (this.project(this.target)) this.stats.contacts++;
     this.saved.subVectors(this.target, this.original);
+    
+    // Clamp radial velocity for sphere colliders to prevent snap-back
+    for (const s of this.spheres) {
+     if (!s.enabled) continue;
+     this.delta.subVectors(this.target, s.center);
+     const dist = this.delta.length();
+     if (dist < s.radius + s.padding + 0.01) {
+      // Near sphere surface: clamp offset's radial component to non-negative
+      this.delta.normalize();
+      const radial = this.saved.dot(this.delta);
+      if (radial < 0) this.saved.addScaledVector(this.delta, -radial);
+     }
+    }
     this.saved.toArray(item.offset, i * 3);
     this.stats.maxCorrection = Math.max(this.stats.maxCorrection, this.saved.length());
     this.inverse.copy(this.skin).invert();
