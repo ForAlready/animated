@@ -1,15 +1,8 @@
 {
-  "collision": {
-    "normal": {
-      "vertices": 5880,
-      "contacts": 82,
-      "maxCorrection": 0.01215637519125826
-    },
-    "stress": {
-      "vertices": 5880,
-      "contacts": 3147,
-      "maxCorrection": 0.06080562583935679
-    },
-    "reset": true
-  }
+  "stress": {
+    "vertices": 5880,
+    "contacts": 3147,
+    "maxCorrection": 0.060805642091497726
+  },
+  "reset": true
 }

@@ -1,0 +1,12 @@
+{
+  "shown": {
+    "colliders": true,
+    "bones": true,
+    "chains": true
+  },
+  "hair": {
+    "before": 0.4562257990996125,
+    "after": 0.3979521130645543,
+    "contacts": 33
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "enabled": false,
+    "medianCPU": 0.5,
+    "p95CPU": 0.7000000029802322,
+    "physicsMedian": 0,
+    "physicsP95": 0.10000000149011612
+  },
+  {
+    "enabled": true,
+    "medianCPU": 2,
+    "p95CPU": 4,
+    "physicsMedian": 1.5,
+    "physicsP95": 2.800000000745058
+  }
+]

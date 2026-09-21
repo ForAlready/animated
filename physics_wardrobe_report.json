@@ -1,0 +1,82 @@
+[
+  {
+    "id": "Suit01",
+    "body": 4,
+    "chains": 89,
+    "contacts": 24,
+    "maxOffset": 0.009,
+    "controls": 95
+  },
+  {
+    "id": "Suit01A",
+    "body": 4,
+    "chains": 89,
+    "contacts": 24,
+    "maxOffset": 0.009,
+    "controls": 95
+  },
+  {
+    "id": "Suit03",
+    "body": 4,
+    "chains": 189,
+    "contacts": 37,
+    "maxOffset": 0.009,
+    "controls": 195
+  },
+  {
+    "id": "Suit04",
+    "body": 4,
+    "chains": 89,
+    "contacts": 24,
+    "maxOffset": 0.009,
+    "controls": 95
+  },
+  {
+    "id": "Suit05",
+    "body": 4,
+    "chains": 120,
+    "contacts": 24,
+    "maxOffset": 0.007,
+    "controls": 126
+  },
+  {
+    "id": "Suit09",
+    "body": 4,
+    "chains": 173,
+    "contacts": 34,
+    "maxOffset": 0.009,
+    "controls": 179
+  },
+  {
+    "id": "Suit10",
+    "body": 4,
+    "chains": 100,
+    "contacts": 24,
+    "maxOffset": 0.009,
+    "controls": 106
+  },
+  {
+    "id": "Suit12",
+    "body": 4,
+    "chains": 103,
+    "contacts": 24,
+    "maxOffset": 0.009,
+    "controls": 109
+  },
+  {
+    "id": "Suit13",
+    "body": 4,
+    "chains": 133,
+    "contacts": 32,
+    "maxOffset": 0.009,
+    "controls": 139
+  },
+  {
+    "id": "Suit14",
+    "body": 4,
+    "chains": 169,
+    "contacts": 42,
+    "maxOffset": 0.009,
+    "controls": 175
+  }
+]

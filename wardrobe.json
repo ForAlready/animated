@@ -13,7 +13,24 @@
         "SK_Role1_Suit01_Shoes",
         "SK_Role1_Suit01_Tshirt"
       ],
-      "collision": false
+      "collision": false,
+      "physics": {
+        "autoDetect": true,
+        "body": {
+          "preset": "bodySoft",
+          "mass": 1,
+          "maxOffset": 0.009
+        },
+        "hair": {
+          "preset": "hair",
+          "maxAngle": 0.025
+        },
+        "clothing": {
+          "preset": "skirt",
+          "maxAngle": 0.055
+        },
+        "bones": {}
+      }
     },
     {
       "id": "Suit01A",
@@ -28,7 +45,24 @@
         "SK_Role1_Suit01A_Pants",
         "SK_Role1_Suit01A_Shirt"
       ],
-      "collision": false
+      "collision": false,
+      "physics": {
+        "autoDetect": true,
+        "body": {
+          "preset": "bodySoft",
+          "mass": 1,
+          "maxOffset": 0.009
+        },
+        "hair": {
+          "preset": "hair",
+          "maxAngle": 0.025
+        },
+        "clothing": {
+          "preset": "skirt",
+          "maxAngle": 0.055
+        },
+        "bones": {}
+      }
     },
     {
       "id": "Suit03",
@@ -44,7 +78,24 @@
         "SK_Role1_Suit03_Skirt",
         "SK_Role1_Suit03_Stocking"
       ],
-      "collision": false
+      "collision": false,
+      "physics": {
+        "autoDetect": true,
+        "body": {
+          "preset": "bodySoft",
+          "mass": 1,
+          "maxOffset": 0.009
+        },
+        "hair": {
+          "preset": "hair",
+          "maxAngle": 0.025
+        },
+        "clothing": {
+          "preset": "skirt",
+          "maxAngle": 0.055
+        },
+        "bones": {}
+      }
     },
     {
       "id": "Suit04",
@@ -58,7 +109,24 @@
         "SK_Role1_Suit04_Pants",
         "SK_Role1_Suit04_Shirt"
       ],
-      "collision": false
+      "collision": false,
+      "physics": {
+        "autoDetect": true,
+        "body": {
+          "preset": "bodySoft",
+          "mass": 1,
+          "maxOffset": 0.009
+        },
+        "hair": {
+          "preset": "hair",
+          "maxAngle": 0.025
+        },
+        "clothing": {
+          "preset": "skirt",
+          "maxAngle": 0.055
+        },
+        "bones": {}
+      }
     },
     {
       "id": "Suit05",
@@ -75,7 +143,24 @@
         "SK_Role1_Suit05_Pendant",
         "SK_Role1_Suit05_Strap"
       ],
-      "collision": false
+      "collision": false,
+      "physics": {
+        "autoDetect": true,
+        "body": {
+          "preset": "bodySoft",
+          "mass": 1,
+          "maxOffset": 0.007
+        },
+        "hair": {
+          "preset": "hair",
+          "maxAngle": 0.025
+        },
+        "clothing": {
+          "preset": "hard",
+          "maxAngle": 0.025
+        },
+        "bones": {}
+      }
     },
     {
       "id": "Suit09",
@@ -90,7 +175,24 @@
         "SK_Role1_Suit09_Skirt",
         "SK_Role1_Suit09_Sock"
       ],
-      "collision": false
+      "collision": false,
+      "physics": {
+        "autoDetect": true,
+        "body": {
+          "preset": "bodySoft",
+          "mass": 1,
+          "maxOffset": 0.009
+        },
+        "hair": {
+          "preset": "hair",
+          "maxAngle": 0.025
+        },
+        "clothing": {
+          "preset": "skirt",
+          "maxAngle": 0.055
+        },
+        "bones": {}
+      }
     },
     {
       "id": "Suit10",
@@ -104,7 +206,24 @@
         "SK_Role1_Suit10_Shirt",
         "SK_Role1_Suit10_Shoe"
       ],
-      "collision": false
+      "collision": false,
+      "physics": {
+        "autoDetect": true,
+        "body": {
+          "preset": "bodySoft",
+          "mass": 1,
+          "maxOffset": 0.009
+        },
+        "hair": {
+          "preset": "hair",
+          "maxAngle": 0.025
+        },
+        "clothing": {
+          "preset": "skirt",
+          "maxAngle": 0.055
+        },
+        "bones": {}
+      }
     },
     {
       "id": "Suit12",
@@ -121,7 +240,24 @@
         "SK_Role1_Suit12_Shoe",
         "SK_Role1_Suit12_Skirt"
       ],
-      "collision": false
+      "collision": false,
+      "physics": {
+        "autoDetect": true,
+        "body": {
+          "preset": "bodySoft",
+          "mass": 1,
+          "maxOffset": 0.009
+        },
+        "hair": {
+          "preset": "hair",
+          "maxAngle": 0.025
+        },
+        "clothing": {
+          "preset": "skirt",
+          "maxAngle": 0.055
+        },
+        "bones": {}
+      }
     },
     {
       "id": "Suit13",
@@ -139,7 +275,24 @@
         "SK_Role1_Suit13_Skirt",
         "SK_Role1_Suit13_Strap"
       ],
-      "collision": true
+      "collision": true,
+      "physics": {
+        "autoDetect": true,
+        "body": {
+          "preset": "bodySoft",
+          "mass": 1,
+          "maxOffset": 0.009
+        },
+        "hair": {
+          "preset": "hair",
+          "maxAngle": 0.025
+        },
+        "clothing": {
+          "preset": "skirt",
+          "maxAngle": 0.055
+        },
+        "bones": {}
+      }
     },
     {
       "id": "Suit14",
@@ -155,7 +308,24 @@
         "SK_Role1_Suit14_Skirt",
         "SK_Role1_Suit14_Sleeve"
       ],
-      "collision": false
+      "collision": false,
+      "physics": {
+        "autoDetect": true,
+        "body": {
+          "preset": "bodySoft",
+          "mass": 1,
+          "maxOffset": 0.009
+        },
+        "hair": {
+          "preset": "hair",
+          "maxAngle": 0.025
+        },
+        "clothing": {
+          "preset": "skirt",
+          "maxAngle": 0.055
+        },
+        "bones": {}
+      }
     }
   ],
   "missing": [

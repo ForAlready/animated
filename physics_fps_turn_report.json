@@ -1,0 +1,26 @@
+{
+  "results": [
+    {
+      "fps": 30,
+      "peak": 0.000927024849080069,
+      "idlePeak": 0.000017705987576467955,
+      "maxSampleDifference": 0.00007271746672061357,
+      "maxChainDifference": 0.0002656338202855174
+    },
+    {
+      "fps": 60,
+      "peak": 0.0009424777719282041,
+      "idlePeak": 0.000017834351850424094,
+      "maxSampleDifference": 0,
+      "maxChainDifference": 0
+    },
+    {
+      "fps": 120,
+      "peak": 0.0009463645313364253,
+      "idlePeak": 0.000017816152144530356,
+      "maxSampleDifference": 0.00002691426299774788,
+      "maxChainDifference": 0.00013221047104594943
+    }
+  ],
+  "peakRatio": 1.0208620969281978
+}

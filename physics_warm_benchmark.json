@@ -1,0 +1,57 @@
+{
+  "outfit": "Suit13",
+  "warmup": 90,
+  "samples": 90,
+  "runs": [
+    {
+      "repeat": 0,
+      "enabled": false,
+      "median": 1,
+      "p95": 2.699999999254942,
+      "physicsMedian": 0.09999999776482582,
+      "physicsP95": 0.20000000298023224
+    },
+    {
+      "repeat": 0,
+      "enabled": true,
+      "median": 3.900000002235174,
+      "p95": 5.300000000745058,
+      "physicsMedian": 3.300000000745058,
+      "physicsP95": 4.699999999254942
+    },
+    {
+      "repeat": 1,
+      "enabled": true,
+      "median": 4.199999999254942,
+      "p95": 6,
+      "physicsMedian": 3.5,
+      "physicsP95": 5
+    },
+    {
+      "repeat": 1,
+      "enabled": false,
+      "median": 0.5,
+      "p95": 1.199999999254942,
+      "physicsMedian": 0,
+      "physicsP95": 0.10000000149011612
+    },
+    {
+      "repeat": 2,
+      "enabled": false,
+      "median": 0.5,
+      "p95": 0.7000000029802322,
+      "physicsMedian": 0,
+      "physicsP95": 0.10000000149011612
+    },
+    {
+      "repeat": 2,
+      "enabled": true,
+      "median": 3.599999997764826,
+      "p95": 5.299999997019768,
+      "physicsMedian": 3,
+      "physicsP95": 4.5
+    }
+  ],
+  "renderer": "WebGL2",
+  "scope": "CPU update only; excludes GPU rasterization"
+}

@@ -1,0 +1,36 @@
+{
+  "runs": [
+    {
+      "enabled": false,
+      "medianCPU": 0.5999999977648258,
+      "p95CPU": 1,
+      "physicsMedian": 0,
+      "physicsP95": 0.19999999925494194
+    },
+    {
+      "enabled": true,
+      "medianCPU": 7.300000000745058,
+      "p95CPU": 15.100000001490116,
+      "physicsMedian": 6.5,
+      "physicsP95": 13.799999997019768
+    }
+  ],
+  "stages": {
+    "contacts": 49.899999998509884,
+    "colliders": 14.200000010430813,
+    "bounce": 47.900000013411045,
+    "secondary": 56.099999994039536,
+    "chainContacts": 98.30000000074506,
+    "cloth": 612.799999948591
+  },
+  "cloth": {
+    "vertices": 5880,
+    "contacts": 49,
+    "maxCorrection": 0.012091630463696074
+  },
+  "meshes": [
+    5128,
+    502,
+    250
+  ]
+}
