@@ -148,7 +148,7 @@
           "skirt": { "preset": "normal" }
         },
         "bones": {
-          "Hair01_03": { "k": 50, "d": 8 }
+          "AfterHair_L_01_03": { "k": 50, "d": 8 }
         }
       }
     },

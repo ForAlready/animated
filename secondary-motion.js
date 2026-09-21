@@ -234,7 +234,7 @@ export class SecondaryMotion {
   }
 
   // Set override for a single bone. Values are absolute (empty/undefined = inherit).
-  // Example: setSingleBoneOverride('Hair01_03', { k: 50, d: 8 })
+  // Example: setSingleBoneOverride('AfterHair_L_01_03', { k: 50, d: 8 })
   setSingleBoneOverride(shortName, values) {
     if (!values || Object.keys(values).length === 0) {
       delete this._boneOverrides[shortName];
